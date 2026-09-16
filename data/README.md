@@ -18,7 +18,7 @@ O CSV nao e versionado (licenca do Kaggle). Baixe e coloque aqui:
 | `RMSSD` | **feature** | variabilidade da FC (ms) |
 | `Activity_Index` | **feature** | proxy de movimento |
 | `Time_of_Day` | **feature** + narrativa | hora inteira 0-23 |
-| `Stress_Label` | alvo | 0 calmo / 1 intermediario / 2 ativado |
+| `Stress_Label` | alvo | 0 calmo / 1 intermediario / 2 acelerado |
 | `Age`, `Sex`, `AQ_Total`, `Anxiety_Disorder` | nao | perfil, nao vem do relogio |
 | `SDNN`, `SCL_mean`, `SCR_Frequency`, `Respiration_Rate`, `Skin_Temperature`, `Noise_Level` | nao | exigem sensor de laboratorio (EDA, respiracao) |
 

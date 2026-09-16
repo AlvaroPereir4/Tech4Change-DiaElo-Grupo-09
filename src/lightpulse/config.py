@@ -39,7 +39,7 @@ SENSOR_RANGES = {
 # --- Rotulos -----------------------------------------------------------------
 # O numero fica restrito ao modelo. A API nunca devolve "estresse": traduz
 # para linguagem de rotina (ver camada de traducao, etapa posterior).
-LABEL_NAMES = {0: "calmo", 1: "intermediario", 2: "ativado"}
+LABEL_NAMES = {0: "calmo", 1: "intermediario", 2: "acelerado"}
 
 # --- Split -------------------------------------------------------------------
 TEST_SIZE = 0.25
