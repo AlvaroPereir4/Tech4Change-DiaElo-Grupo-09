@@ -1,0 +1,18 @@
+# Dados brutos: nao versionados (licenca Kaggle). Ver data/README.md
+data/raw/*
+!data/raw/.gitkeep
+
+# Artefatos gerados
+reports/*
+!reports/.gitkeep
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
