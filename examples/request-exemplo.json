@@ -1,0 +1,30 @@
+{
+  "child_id": "anon-7f3a",
+  "min_readings_per_period": 6,
+  "readings": [
+    { "timestamp": "2026-09-17T07:00:00-03:00", "heart_rate": 78.4, "rmssd": 42.1, "activity_index": 0.50 },
+    { "timestamp": "2026-09-17T07:30:00-03:00", "heart_rate": 80.2, "rmssd": 40.8, "activity_index": 0.55 },
+    { "timestamp": "2026-09-17T08:00:00-03:00", "heart_rate": 76.9, "rmssd": 44.3, "activity_index": 0.47 },
+    { "timestamp": "2026-09-17T08:30:00-03:00", "heart_rate": 79.1, "rmssd": 41.5, "activity_index": 0.52 },
+    { "timestamp": "2026-09-17T09:00:00-03:00", "heart_rate": 77.5, "rmssd": 43.0, "activity_index": 0.49 },
+    { "timestamp": "2026-09-17T09:30:00-03:00", "heart_rate": 81.0, "rmssd": 39.6, "activity_index": 0.58 },
+    { "timestamp": "2026-09-17T10:00:00-03:00", "heart_rate": 78.0, "rmssd": 42.7, "activity_index": 0.51 },
+
+    { "timestamp": "2026-09-17T13:00:00-03:00", "heart_rate": 101.3, "rmssd": 18.4, "activity_index": 1.08 },
+    { "timestamp": "2026-09-17T13:30:00-03:00", "heart_rate": 105.7, "rmssd": 15.2, "activity_index": 1.21 },
+    { "timestamp": "2026-09-17T14:00:00-03:00", "heart_rate": 99.8, "rmssd": 20.1, "activity_index": 1.02 },
+    { "timestamp": "2026-09-17T14:30:00-03:00", "heart_rate": 108.2, "rmssd": 13.9, "activity_index": 1.30 },
+    { "timestamp": "2026-09-17T15:00:00-03:00", "heart_rate": 103.4, "rmssd": 16.8, "activity_index": 1.14 },
+    { "timestamp": "2026-09-17T15:30:00-03:00", "heart_rate": 97.6, "rmssd": 21.3, "activity_index": 0.98 },
+    { "timestamp": "2026-09-17T16:00:00-03:00", "heart_rate": 102.9, "rmssd": 17.5, "activity_index": 1.11 },
+
+    { "timestamp": "2026-09-17T19:00:00-03:00", "heart_rate": 84.2, "rmssd": 35.9, "activity_index": 0.64 },
+    { "timestamp": "2026-09-17T19:30:00-03:00", "heart_rate": 82.7, "rmssd": 37.2, "activity_index": 0.60 },
+    { "timestamp": "2026-09-17T20:00:00-03:00", "heart_rate": 80.5, "rmssd": 39.1, "activity_index": 0.56 },
+    { "timestamp": "2026-09-17T20:30:00-03:00", "heart_rate": 79.8, "rmssd": 40.4, "activity_index": 0.53 },
+    { "timestamp": "2026-09-17T21:00:00-03:00", "heart_rate": 78.1, "rmssd": 41.8, "activity_index": 0.50 },
+    { "timestamp": "2026-09-17T21:30:00-03:00", "heart_rate": 77.3, "rmssd": 43.5, "activity_index": 0.48 },
+
+    { "timestamp": "2026-09-17T12:10:00-03:00", "heart_rate": 310.0, "rmssd": 22.0, "activity_index": 1.00 }
+  ]
+}

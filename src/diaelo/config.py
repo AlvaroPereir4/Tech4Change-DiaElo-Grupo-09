@@ -12,7 +12,7 @@ MODELS_DIR = ROOT / "models"
 REPORTS_DIR = ROOT / "reports"
 
 DATASET_FILE = DATA_RAW / "ASD_Physiological_Stress_Dataset.csv"
-MODEL_FILE = MODELS_DIR / "lightpulse_rf.pkl"
+MODEL_FILE = MODELS_DIR / "diaelo_rf.pkl"
 
 RANDOM_SEED = 42
 

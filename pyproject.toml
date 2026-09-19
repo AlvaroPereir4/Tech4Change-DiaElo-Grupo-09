@@ -1,5 +1,5 @@
 [project]
-name = "lightpulse"
+name = "diaelo"
 version = "0.1.0"
 description = "Dados que viram cuidado, nao diagnostico."
 requires-python = ">=3.11"

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from lightpulse.config import DATASET_FILE, GROUP_COL, SENSOR_FEATURES, SENSOR_RANGES, TARGET
+from diaelo.config import DATASET_FILE, GROUP_COL, SENSOR_FEATURES, SENSOR_RANGES, TARGET
 
 
 @dataclass

@@ -12,9 +12,9 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
-from lightpulse.config import MODEL_FILE
-from lightpulse.data.features import build_features
-from lightpulse.insights.contracts import Reading
+from diaelo.config import MODEL_FILE
+from diaelo.data.features import build_features
+from diaelo.insights.contracts import Reading
 
 
 class ModelBundle:
@@ -46,6 +46,6 @@ def load_bundle(path: Path | None = None) -> ModelBundle:
     if not path.exists():
         raise FileNotFoundError(
             f"Modelo nao encontrado em {path}. "
-            "Rode primeiro: python -m lightpulse.training.train"
+            "Rode primeiro: python -m diaelo.training.train"
         )
     return ModelBundle(joblib.load(path))

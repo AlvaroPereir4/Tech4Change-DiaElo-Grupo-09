@@ -15,7 +15,7 @@ Demais regras:
 * Batimento alto não é ruim. Correr, brincar e rir sobem batimento igual.
 """
 
-from lightpulse.insights.contracts import PeriodName
+from diaelo.insights.contracts import PeriodName
 
 # --- Limiares ----------------------------------------------------------------
 # Diferença de batimento que vale mencionar. Abaixo disso, "em linha com o dia".

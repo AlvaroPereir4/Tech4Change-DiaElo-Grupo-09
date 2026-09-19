@@ -11,9 +11,9 @@ histórico, funcionando desde o primeiro dia de uso.
 
 from collections import Counter, defaultdict
 
-from lightpulse.data.features import period_of_day
-from lightpulse.insights import narrative
-from lightpulse.insights.contracts import (
+from diaelo.data.features import period_of_day
+from diaelo.insights import narrative
+from diaelo.insights.contracts import (
     InsightRequest,
     InsightResponse,
     PeriodInsight,
@@ -22,7 +22,7 @@ from lightpulse.insights.contracts import (
     Reading,
     StateName,
 )
-from lightpulse.insights.predictor import ModelBundle, load_bundle
+from diaelo.insights.predictor import ModelBundle, load_bundle
 
 # Peso de cada estado na escala contínua de ativação.
 STATE_WEIGHT: dict[StateName, float] = {"calmo": 0.0, "intermediario": 1.0, "acelerado": 2.0}

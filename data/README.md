@@ -47,6 +47,6 @@ modelo nao vai para a tela: a API traduz para pergunta reflexiva.
 
 ## Limpeza aplicada
 
-`src/lightpulse/data/loader.py` descarta linhas fora de faixa fisiologica
+`src/diaelo/data/loader.py` descarta linhas fora de faixa fisiologica
 plausivel. No dataset atual: 78 de 25.000 linhas (~0,3%), quase todas
 `Activity_Index` acima de 10.

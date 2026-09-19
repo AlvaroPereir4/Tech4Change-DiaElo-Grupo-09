@@ -11,7 +11,7 @@ Duas responsabilidades separadas de proposito:
 import numpy as np
 import pandas as pd
 
-from lightpulse.config import GROUP_COL, MODEL_FEATURES, TARGET
+from diaelo.config import GROUP_COL, MODEL_FEATURES, TARGET
 
 HOURS_IN_DAY = 24
 

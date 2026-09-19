@@ -12,7 +12,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from lightpulse.config import SENSOR_RANGES
+from diaelo.config import SENSOR_RANGES
 
 PeriodName = Literal["madrugada", "manha", "tarde", "noite"]
 StateName = Literal["calmo", "intermediario", "acelerado"]

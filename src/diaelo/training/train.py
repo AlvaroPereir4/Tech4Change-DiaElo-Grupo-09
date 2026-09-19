@@ -23,7 +23,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from sklearn.model_selection import GroupKFold, GroupShuffleSplit, cross_val_score
 
-from lightpulse.config import (
+from diaelo.config import (
     LABEL_NAMES,
     MODEL_FEATURES,
     MODEL_FILE,
@@ -32,8 +32,8 @@ from lightpulse.config import (
     REPORTS_DIR,
     TEST_SIZE,
 )
-from lightpulse.data.features import build_xy
-from lightpulse.data.loader import load_clean
+from diaelo.data.features import build_xy
+from diaelo.data.loader import load_clean
 
 
 def split_by_subject(X, y, groups, test_size=TEST_SIZE, seed=RANDOM_SEED):
@@ -133,7 +133,7 @@ def train(seed: int = RANDOM_SEED, cv_folds: int = 5) -> dict:
 
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    joblib.dump(bundle, MODEL_FILE)
+    joblib.dump(bundle, MODEL_FILE, compress=3)  # ~4x menor, cabe no repositorio
     (REPORTS_DIR / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     print(f"\n[artefato] {MODEL_FILE}")
     print(f"[artefato] {REPORTS_DIR / 'metrics.json'}")
@@ -142,7 +142,7 @@ def train(seed: int = RANDOM_SEED, cv_folds: int = 5) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Treina o modelo LightPulse.")
+    parser = argparse.ArgumentParser(description="Treina o modelo DiaElo.")
     parser.add_argument("--seed", type=int, default=RANDOM_SEED)
     parser.add_argument("--cv-folds", type=int, default=5)
     args = parser.parse_args()
