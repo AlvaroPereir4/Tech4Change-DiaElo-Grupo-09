@@ -36,6 +36,7 @@ em observações compreensíveis sobre a rotina de crianças com TEA.
 - [Tecnologias](#tecnologias)
 - [APIs, modelos de IA e bases de dados](#apis-modelos-de-ia-e-bases-de-dados)
 - [Instalação e execução](#instalação-e-execução)
+- [Deploy na Oracle Cloud](#deploy-na-oracle-cloud)
 - [Especificação da API](#especificação-da-api)
 - [Equipe](#equipe)
 - [Limitações conhecidas e próximos passos](#limitações-conhecidas-e-próximos-passos)
@@ -183,10 +184,13 @@ flowchart LR
 
 ### Infraestrutura
 
-A aplicação é empacotada como um processo único (uvicorn servindo FastAPI) e
-executada em uma instância **Oracle Cloud Infrastructure Compute** com Ubuntu.
-Por não haver banco de dados nem estado compartilhado, a instância pode ser
-reiniciada ou substituída sem perda de informação.
+A aplicação é empacotada em um container Docker e executada em uma instância
+**Oracle Cloud Infrastructure Compute** com Ubuntu. Por não haver banco de
+dados nem estado compartilhado, a instância pode ser reiniciada ou substituída
+sem perda de informação.
+
+A configuração completa do ambiente está em
+[Deploy na Oracle Cloud](#deploy-na-oracle-cloud).
 
 ---
 
@@ -378,6 +382,103 @@ O script imprime as métricas, salva o artefato em `models/diaelo_rf.pkl` e o
 relatório em `reports/metrics.json`.
 
 </details>
+
+---
+
+## Deploy na Oracle Cloud
+
+A API roda containerizada em uma instância de computação da Oracle Cloud
+Infrastructure. Esta seção registra como o ambiente foi configurado.
+
+### A instância
+
+| Item | Valor |
+|---|---|
+| Serviço | OCI Compute (Virtual Machine) |
+| Shape | `VM.Standard.E5.Flex` (AMD, x86-64) |
+| Capacidade | 1 OCPU (2 vCPUs) · 8 GB de memória |
+| Imagem | Canonical Ubuntu 22.04 LTS |
+| Região | `sa-saopaulo-1` (São Paulo) |
+| Endereço público | IPv4 efêmero |
+
+A arquitetura x86 foi escolhida em vez do shape Ampere (ARM) por dois motivos:
+o Ampere costuma estar sem capacidade disponível nas regiões mais usadas, e a
+imagem Docker precisaria ser construída para `arm64`, o que acrescentaria uma
+categoria inteira de erro sem benefício para o projeto.
+
+### Rede
+
+A instância fica em uma **subnet pública** dentro de uma VCN com internet
+gateway e tabela de rotas configurados.
+
+O tráfego externo atravessa **dois filtros independentes**, e ambos precisam
+permitir a porta:
+
+**1. Security List da subnet (nível Oracle)**
+
+| Direção | Origem | Protocolo | Porta de destino | Uso |
+|---|---|---|---|---|
+| Ingress | `0.0.0.0/0` | TCP | 22 | SSH |
+| Ingress | `0.0.0.0/0` | TCP | 8000 | API |
+
+**2. iptables (nível sistema operacional)**
+
+As imagens Ubuntu da Oracle já vêm com regras de firewall aplicadas, incluindo
+um `REJECT` genérico ao final da cadeia `INPUT`. A regra da aplicação precisa
+ser inserida **antes** desse `REJECT`, caso contrário nunca é alcançada:
+
+```bash
+sudo iptables -I INPUT 5 -m state --state NEW -p tcp --dport 8000 -j ACCEPT
+sudo netfilter-persistent save
+```
+
+A posição correta pode ser verificada com
+`sudo iptables -L INPUT -n --line-numbers`: a linha de `ACCEPT` da porta 8000
+deve aparecer acima da linha de `REJECT`.
+
+### Publicação da aplicação
+
+Instalação do Docker, uma única vez:
+
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER   # exige reconectar a sessão
+```
+
+Build e execução:
+
+```bash
+git clone https://github.com/AlvaroPereir4/Tech4Change-DiaElo-Grupo-09.git
+cd Tech4Change-DiaElo-Grupo-09
+docker build -t diaelo .
+docker run -d --name diaelo -p 8000:8000 --restart unless-stopped diaelo
+```
+
+O parâmetro `--restart unless-stopped` faz o container subir sozinho caso a
+instância seja reiniciada.
+
+O container expõe um `HEALTHCHECK` que consulta `/health`. Como esse endpoint
+só responde depois que o modelo é carregado, o status `healthy` em
+`docker ps` confirma que a aplicação está efetivamente pronta, e não apenas
+que o processo existe.
+
+### Ciclo de atualização
+
+O deploy é manual. Para publicar uma nova versão:
+
+```bash
+cd ~/Tech4Change-DiaElo-Grupo-09
+git pull
+docker build -t diaelo .
+docker stop diaelo && docker rm diaelo
+docker run -d --name diaelo -p 8000:8000 --restart unless-stopped diaelo
+```
+
+Builds subsequentes são rápidos: o Docker reaproveita a camada de dependências
+enquanto o `requirements.txt` não mudar.
+
+Automatizar esse ciclo via GitHub Actions e OCI Container Registry está
+previsto em [próximos passos](#limitações-conhecidas-e-próximos-passos).
 
 ---
 
