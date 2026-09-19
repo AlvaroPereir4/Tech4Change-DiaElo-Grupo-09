@@ -1,33 +1,18 @@
 """Camada de tradução humanizada.
 
-Princípio que governa todo texto deste arquivo:
-
-    Só se afirma o que foi MEDIDO.
-
-Nenhuma frase daqui depende da classificação do modelo. Toda afirmação cita
-número de sensor -- bpm, contagem de leituras -- comparado ao próprio dia da
-criança. Se o modelo errar, os textos continuam verdadeiros.
-
-Demais regras:
-
-* Descrever o que foi medido, nunca o que a criança sentiu.
-* Nunca usar "estresse", "crise", "alerta", "risco" nem nome de emoção.
-* Batimento alto não é ruim. Correr, brincar e rir sobem batimento igual.
+Só se afirma o que foi medido: toda frase cita número de sensor comparado ao
+próprio dia da criança, nunca a classificação do modelo. Não se usa "estresse",
+"crise", "alerta" nem nome de emoção.
 """
 
 from diaelo.insights.contracts import PeriodName
 
-# --- Limiares ----------------------------------------------------------------
-# Diferença de batimento que vale mencionar. Abaixo disso, "em linha com o dia".
+# Abaixo desta diferença de batimento, o período é "em linha com o dia".
 HR_DELTA_BPM = 5.0
 
-# Diferença relativa de movimento para ser chamada de mais/menos movimento.
 ACTIVITY_DELTA_RATIO = 0.10
-
-# Fração de leituras descartadas que justifica avisar a família.
 DISCARD_WARN_RATIO = 0.20
 
-# Como cada período entra no meio da frase.
 PERIOD_LABEL: dict[PeriodName, str] = {
     "madrugada": "de madrugada",
     "manha": "de manhã",
@@ -35,7 +20,7 @@ PERIOD_LABEL: dict[PeriodName, str] = {
     "noite": "à noite",
 }
 
-# Mesma coisa, capitalizado para início de frase.
+# Capitalizado, para início de frase.
 PERIOD_LABEL_START: dict[PeriodName, str] = {
     "madrugada": "De madrugada",
     "manha": "De manhã",
@@ -44,7 +29,6 @@ PERIOD_LABEL_START: dict[PeriodName, str] = {
 }
 
 
-# --- Leituras insuficientes ----------------------------------------
 def inconclusive(period: PeriodName, readings_used: int) -> str:
     plural = "leituras" if readings_used != 1 else "leitura"
     return (
@@ -54,7 +38,6 @@ def inconclusive(period: PeriodName, readings_used: int) -> str:
     )
 
 
-# --- O período, em números medidos ---------------------------------
 def observation(
     period: PeriodName,
     readings_used: int,
@@ -63,11 +46,7 @@ def observation(
     activity_avg: float,
     day_activity_avg: float,
 ) -> str:
-    """Descreve o período citando apenas sensor, comparado ao próprio dia.
-
-    Nenhuma parte desta frase depende da classificação do modelo, então ela
-    permanece verdadeira mesmo que o modelo esteja errado.
-    """
+    """Descreve o período citando apenas sensor, comparado ao próprio dia."""
     delta = heart_rate_avg - day_heart_rate_avg
     start = PERIOD_LABEL_START[period]
 
@@ -86,7 +65,6 @@ def observation(
     )
 
     # O movimento acompanhou a alta dos batimentos?
-    # Leitura direta do acelerômetro, sem passar pelo modelo.
     if delta > 0 and day_activity_avg > 0:
         ratio = activity_avg / day_activity_avg - 1
         if ratio >= ACTIVITY_DELTA_RATIO:
@@ -97,9 +75,8 @@ def observation(
     return first
 
 
-# --- Qualidade do sinal --------------------------------------------
 def data_quality(discarded: int, received: int) -> str | None:
-    """Avisa quando o relógio entregou muita leitura inutilizável."""
+    """Avisa quando muitas leituras foram descartadas."""
     if received == 0 or discarded / received <= DISCARD_WARN_RATIO:
         return None
     return (

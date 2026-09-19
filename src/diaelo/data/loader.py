@@ -1,9 +1,4 @@
-"""Carga e limpeza do ASD-PhysioStress.
-
-O dataset publico vem limpo (sem nulos, sem duplicatas), mas o mesmo codigo
-precisa aguentar leitura real de smartwatch, que vem suja. Por isso a
-validacao e a limpeza sao explicitas e reportadas, nao silenciosas.
-"""
+"""Carga e limpeza do ASD-PhysioStress."""
 
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -15,7 +10,7 @@ from diaelo.config import DATASET_FILE, GROUP_COL, SENSOR_FEATURES, SENSOR_RANGE
 
 @dataclass
 class CleaningReport:
-    """O que a limpeza mexeu. Serve para log e para o README do modelo."""
+    """Resumo do que a limpeza removeu."""
 
     rows_in: int = 0
     rows_out: int = 0

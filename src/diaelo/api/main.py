@@ -1,9 +1,6 @@
 """API HTTP do DiaElo.
 
-Camada fina: valida, chama o motor de insights e devolve. Toda a regra vive
-em `diaelo.insights`, e os contratos Pydantic de `insights.contracts` são
-os mesmos usados aqui -- então o schema do OpenAPI é gerado a partir da fonte
-da verdade, não de uma cópia que pode divergir.
+Camada fina sobre `diaelo.insights`, usando os mesmos contratos Pydantic.
 """
 
 from contextlib import asynccontextmanager
@@ -18,11 +15,7 @@ from diaelo.insights.predictor import load_bundle
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Carrega o modelo no boot.
-
-    De propósito falha aqui se o artefato não existir: é melhor o container
-    não subir do que subir e devolver erro na primeira requisição real.
-    """
+    """Carrega o modelo no boot. Sem o artefato, o serviço não sobe."""
     app.state.bundle = load_bundle()
     yield
 
@@ -34,8 +27,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# O app da família roda em outra origem. Aberto para o MVP; antes de qualquer
-# uso real, restringir à origem do cliente.
+# Aberto para o MVP. Antes de uso real, restringir à origem do cliente.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -46,7 +38,7 @@ app.add_middleware(
 
 @app.get("/health", tags=["infra"])
 def health() -> dict:
-    """Usado pelo deploy para saber se o processo está saudável."""
+    """Estado do serviço e do modelo carregado."""
     bundle = getattr(app.state, "bundle", None)
     if bundle is None:
         raise HTTPException(
@@ -65,10 +57,5 @@ def health() -> dict:
 
 @app.post("/insights", response_model=InsightResponse, tags=["insights"])
 def insights(request: InsightRequest) -> InsightResponse:
-    """Recebe as leituras de uma janela e devolve as observações do período.
-
-    Leitura fora de faixa fisiológica não é erro: entra na resposta como
-    descarte contabilizado. Só a requisição malformada é rejeitada, e disso
-    o Pydantic cuida antes de chegar aqui.
-    """
+    """Recebe as leituras de uma janela e devolve as observações por período."""
     return generate_insights(request, bundle=app.state.bundle)

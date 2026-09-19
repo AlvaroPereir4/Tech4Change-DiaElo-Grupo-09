@@ -1,10 +1,6 @@
-"""Contrato de entrada e saida da plataforma.
+"""Entrada e saida da API.
 
-Este arquivo e a fronteira do produto. Do lado de dentro existe um
-classificador que cospe 0, 1 ou 2. Do lado de fora, a familia recebe
-observacao e pergunta. Os dois vocabularios nunca se misturam: nenhum campo
-desta resposta expoe o rotulo numerico, e nenhum texto aqui usa "estresse",
-"crise" ou nome de emocao.
+Nenhum campo da resposta expoe o rotulo numerico do modelo.
 """
 
 from datetime import datetime
@@ -18,13 +14,8 @@ PeriodName = Literal["madrugada", "manha", "tarde", "noite"]
 StateName = Literal["calmo", "intermediario", "acelerado"]
 
 
-# --- Entrada: o que chega do relogio ----------------------------------------
 class Reading(BaseModel):
-    """Uma leitura pontual do smartwatch.
-
-    O horario vem como timestamp real (o relogio sabe a hora); a hora do dia
-    usada pelo modelo e derivada dele, nao pedida ao cliente.
-    """
+    """Uma leitura do smartwatch. A hora do dia e derivada do timestamp."""
 
     timestamp: datetime
     heart_rate: float = Field(..., description="bpm")
@@ -39,11 +30,7 @@ class Reading(BaseModel):
         return v
 
     def is_plausible(self) -> bool:
-        """Leitura fisiologicamente possivel.
-
-        Sensor de pulso perde contato e registra valores espurios. Leitura
-        implausivel e descartada e contabilizada, nunca corrigida em silencio.
-        """
+        """Leitura dentro da faixa fisiologica possivel."""
         checks = {
             "Heart_Rate": self.heart_rate,
             "RMSSD": self.rmssd,
@@ -64,7 +51,6 @@ class InsightRequest(BaseModel):
     )
 
 
-# --- Saida: o que o app mostra ----------------------------------------------
 class PeriodMetrics(BaseModel):
     heart_rate_avg: float
     rmssd_avg: float

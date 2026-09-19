@@ -1,12 +1,7 @@
 """Orquestração: leituras do relógio -> insights para a família.
 
-Fluxo: descartar leitura implausível -> classificar cada leitura -> agrupar
-por período do dia -> descrever cada período em números medidos.
-
-O modelo entra apenas nos campos numéricos (`distribution`, `predominant`,
-`activation_score`). Os textos são derivados só de sensor, comparados à média
-do próprio dia da criança -- que serve de linha de base pessoal sem exigir
-histórico, funcionando desde o primeiro dia de uso.
+Descarta leitura implausível, classifica cada leitura, agrupa por período do
+dia e descreve cada período em números medidos.
 """
 
 from collections import Counter, defaultdict
@@ -24,10 +19,9 @@ from diaelo.insights.contracts import (
 )
 from diaelo.insights.predictor import ModelBundle, load_bundle
 
-# Peso de cada estado na escala contínua de ativação.
 STATE_WEIGHT: dict[StateName, float] = {"calmo": 0.0, "intermediario": 1.0, "acelerado": 2.0}
 
-# Ordem cronológica do dia, não alfabética.
+# Ordem cronológica, não alfabética.
 PERIOD_ORDER: list[PeriodName] = ["madrugada", "manha", "tarde", "noite"]
 
 

@@ -1,16 +1,9 @@
 """Treino do classificador de estado fisiologico.
 
-Decisoes que valem registro:
-
-* **Split por sujeito (GroupShuffleSplit).** Sao 120 individuos com ~208
-  leituras cada. Um split aleatorio por linha colocaria o mesmo individuo no
-  treino e no teste, e a metrica mediria memorizacao, nao generalizacao.
-* **Baseline explicito.** Um DummyClassifier roda junto. Acuracia alta so
-  significa alguma coisa comparada ao chute da classe majoritaria.
-* **Bundle, nao modelo cru.** O .pkl guarda a ordem das features e as metricas
-  junto do estimador, para a API validar o que recebe.
+O split e por sujeito (GroupShuffleSplit), um DummyClassifier roda junto como
+baseline, e o artefato salvo guarda a ordem das features e as metricas junto
+do estimador.
 """
-
 import argparse
 import json
 from datetime import datetime, timezone
@@ -133,7 +126,7 @@ def train(seed: int = RANDOM_SEED, cv_folds: int = 5) -> dict:
 
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    joblib.dump(bundle, MODEL_FILE, compress=3)  # ~4x menor, cabe no repositorio
+    joblib.dump(bundle, MODEL_FILE, compress=3)
     (REPORTS_DIR / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     print(f"\n[artefato] {MODEL_FILE}")
     print(f"[artefato] {REPORTS_DIR / 'metrics.json'}")

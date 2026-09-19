@@ -1,9 +1,6 @@
 """Carga do modelo e inferencia em lote.
 
-O bundle e carregado uma vez por processo. A ordem das colunas vem do proprio
-artefato, nao de uma constante solta: se o .pkl for retreinado com outro
-conjunto de features, isso aparece como erro na hora da carga, e nao como
-predicao silenciosamente errada.
+A ordem das colunas vem do proprio artefato, nao de uma constante solta.
 """
 
 from functools import lru_cache
