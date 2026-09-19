@@ -1,4 +1,4 @@
-# Contrato de dados — entrada e saída
+# Especificação da API — entrada e saída
 
 Referência para o consumo da API.
 

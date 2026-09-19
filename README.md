@@ -36,7 +36,7 @@ em observações compreensíveis sobre a rotina de crianças com TEA.
 - [Tecnologias](#tecnologias)
 - [APIs, modelos de IA e bases de dados](#apis-modelos-de-ia-e-bases-de-dados)
 - [Instalação e execução](#instalação-e-execução)
-- [Contrato de dados](#contrato-de-dados)
+- [Especificação da API](#especificação-da-api)
 - [Equipe](#equipe)
 - [Limitações conhecidas e próximos passos](#limitações-conhecidas-e-próximos-passos)
 
@@ -79,18 +79,32 @@ família entende, sem urgência e sem alarme.
 
 ### A proposta
 
-A plataforma recebe as leituras de um dia inteiro e devolve o dia organizado em
-quatro períodos, cada um descrito com os números que o relógio de fato mediu.
+**Acompanhar continuamente os sinais que o relógio já capta e devolvê-los à
+família como informação compreensível sobre a rotina.** A proposta é o
+monitoramento: tornar visível e utilizável aquilo que hoje permanece inacessível
+dentro do aparelho.
 
-A regra que orienta toda a resposta é que **só se afirma o que foi medido**. Um
-Random Forest classifica cada leitura, mas a classificação não aparece no
-texto: as frases citam batimento, contagem de leituras e comparação com a média
-do próprio dia da criança. Um erro do modelo pode, no máximo, destacar um
-período menos relevante. Ele não produz uma frase falsa.
+### O que foi desenvolvido
 
-A referência de comparação é o **próprio dia da criança**: cada período é
-medido contra a média das outras leituras dela mesma. Isso dispensa histórico e
-funciona desde o primeiro dia de uso.
+A aplicação deste repositório é uma **demonstração desse conceito**, não a forma
+final do produto. Ela recorta uma fatia do monitoramento — o dia organizado em
+quatro períodos, cada um descrito com os números que o relógio mediu — e a
+percorre de ponta a ponta, do sensor à frase que a família lê.
+
+Esse recorte foi escolhido por ser o mais direto de construir e validar dentro
+dos 20 dias da primeira fase. Outras formas de apresentar o mesmo
+acompanhamento são possíveis e estão previstas em
+[próximos passos](#limitações-conhecidas-e-próximos-passos).
+
+Dois princípios guiam o que foi construído:
+
+**Só se afirma o que foi medido.** Um Random Forest classifica cada leitura, mas
+a classificação não aparece no texto. As frases citam batimento e contagem de
+leituras, sempre comparados à média do próprio dia da criança.
+
+**A referência é o próprio dia da criança.** Cada período é medido contra as
+outras leituras dela mesma, o que dispensa histórico e funciona desde o primeiro
+dia de uso.
 
 ---
 
@@ -160,11 +174,12 @@ flowchart LR
 
 | Decisão | Motivo |
 |---|---|
-| **Serviço sem estado** | Cada requisição é independente. Não há banco de dados nem sessão: entram as leituras, saem as observações. Simplifica o deploy e evita armazenar dado sensível de criança. |
-| **Contratos Pydantic compartilhados** | Os mesmos modelos definem o domínio e o schema HTTP. O OpenAPI é gerado da fonte da verdade, sem cópia que possa divergir. |
-| **Modelo como artefato versionado** | O `.pkl` guarda o estimador, a ordem das features e as métricas do treino. A inferência valida o que recebe em vez de falhar em silêncio. |
-| **Separação entre classificar e narrar** | O modelo decide o que merece atenção; o texto cita apenas sensor medido. Erro de modelo degrada a relevância, nunca a veracidade. |
-| **Carga do modelo na inicialização** | Se o artefato estiver ausente, o serviço não sobe. É preferível falhar no deploy a falhar na primeira requisição real. |
+| **Serviço sem estado** | Cada requisição é autocontida, o que permite reiniciar ou replicar a instância livremente e mantém os dados da criança fora de qualquer armazenamento. |
+| **Contratos Pydantic compartilhados** | Os mesmos modelos definem o domínio e o schema HTTP. A documentação OpenAPI é gerada da fonte da verdade, sem cópia que possa divergir. |
+| **Modelo como artefato versionado** | O `.pkl` guarda o estimador, a ordem das features e as métricas do treino, permitindo que a inferência valide o que recebe. |
+| **Separação entre classificar e narrar** | O modelo decide o que merece atenção; o texto cita apenas sensor medido. As duas responsabilidades evoluem de forma independente. |
+| **Modelo carregado na inicialização** | O artefato é lido uma única vez, no boot do processo, e reutilizado em todas as requisições. |
+| **Treino desacoplado da API** | O treino roda offline e produz o artefato. O serviço em produção apenas consome, sem dependência do dataset. |
 
 ### Infraestrutura
 
@@ -303,7 +318,7 @@ relatório em `reports/metrics.json`.
 
 ---
 
-## Contrato de dados
+## Especificação da API
 
 ### Entrada
 
@@ -313,10 +328,6 @@ real. Quatro campos por leitura:
 ```json
 { "timestamp": "2026-09-17T14:00:00-03:00", "heart_rate": 105.7, "rmssd": 15.2, "activity_index": 1.21 }
 ```
-
-O período do dia é derivado do `timestamp` no backend, então o app não precisa
-enviá-lo. Leitura fisiologicamente impossível não invalida a requisição: ela é
-descartada e o total de descartes volta na resposta.
 
 ### Saída
 
@@ -349,8 +360,8 @@ para exibição (`observation`):
    redige frases sobre o estado da criança.
 
 > [!IMPORTANT]
-> O contrato completo, campo a campo e com exemplo integral de entrada e saída,
-> está em **[docs/API.md](docs/API.md)**.
+> A especificação completa, campo a campo e com exemplo integral de entrada e
+> saída, está em **[docs/API.md](docs/API.md)**.
 
 Há um payload pronto para testes em
 [examples/request-exemplo.json](examples/request-exemplo.json): 21 leituras, com
@@ -418,7 +429,7 @@ smartwatch; o aplicativo acumula as leituras e envia o lote.
 
 ```
 src/diaelo/
-├── config.py            # contrato de dados: features, faixas, rótulos
+├── config.py            # definições de dados: features, faixas, rótulos
 ├── data/
 │   ├── loader.py        # carga, validação de schema e limpeza
 │   └── features.py      # hora cíclica (modelo) vs. período do dia (narrativa)
@@ -432,7 +443,7 @@ src/diaelo/
 └── api/
     └── main.py          # FastAPI
 
-docs/API.md              # contrato de dados completo
+docs/API.md              # especificação completa da API
 data/README.md           # dataset: schema e limitações
 examples/                # payload de exemplo
 models/                  # artefato treinado (.pkl)
