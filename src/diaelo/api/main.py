@@ -22,7 +22,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="DiaElo API",
-    description="Dados que viram cuidado, não diagnóstico.",
+    description=(
+        "Dados que viram cuidado, não diagnóstico.\n\n"
+        "Envie as leituras de um dia e receba o dia descrito por período, "
+        "em números medidos.\n\n"
+        "**Para testar:** abra POST /insights, clique em *Try it out* e em "
+        "*Execute*. O corpo já vem preenchido com um dia de exemplo."
+    ),
     version="0.1.0",
     lifespan=lifespan,
 )
