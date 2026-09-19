@@ -435,7 +435,7 @@ borda.
 
 ## Equipe
 
-- Álvaro Pereira — [@AlvaroPereir4](https://github.com/AlvaroPereir4)
+- Alvaro Pereira — [@AlvaroPereir4](https://github.com/AlvaroPereir4)
 - Nurian Coelho — [@Nuri-an](https://github.com/Nuri-an)
 - Kayo Leanndro — [@KayoLeanndro](https://github.com/KayoLeanndro)
 
