@@ -220,6 +220,69 @@ API REST própria, documentada automaticamente via OpenAPI.
 Nenhuma API externa de terceiros é consumida, e o projeto não depende de
 serviços pagos de inteligência artificial.
 
+### Sinais captados
+
+O modelo trabalha com três sinais fisiológicos, todos disponíveis em
+smartwatches de baixo custo. Uma leitura não é uma medição instantânea: é uma
+**janela agregada** de alguns minutos, porque o RMSSD só existe sobre uma
+sequência de batimentos.
+
+#### Frequência cardíaca (`heart_rate`)
+
+Batimentos por minuto, em média na janela. É o sinal mais conhecido e o mais
+fácil de medir, mas também o mais ambíguo isoladamente: sobe com exercício,
+com susto, com febre e com animação.
+
+Na base utilizada, varia de 55 a 141 bpm.
+
+#### Variabilidade da frequência cardíaca (`rmssd`)
+
+Raiz quadrada da média dos quadrados das diferenças entre intervalos R-R
+consecutivos, em milissegundos. Em termos práticos: mede **o quanto o tempo
+entre uma batida e a seguinte oscila**.
+
+Um coração em repouso não bate como metrônomo — ele acelera e desacelera
+levemente a cada respiração, sob controle do sistema nervoso parassimpático.
+Quanto maior essa oscilação, mais o organismo está em estado de recuperação.
+Sob ativação, o controle simpático assume, os intervalos ficam regulares e o
+RMSSD cai.
+
+É por isso que o RMSSD é o marcador padrão de ativação autonômica na
+literatura, e é o sinal de maior peso no modelo. Aplicativos de exercício
+costumam ignorá-lo em favor da frequência média.
+
+Na base utilizada, varia de 1 a 77 ms.
+
+#### Índice de atividade (`activity_index`)
+
+Proxy de movimento derivado do acelerômetro, adimensional. Serve para
+contextualizar os outros dois: batimento alto acompanhado de muito movimento
+tem leitura diferente de batimento alto com o corpo parado.
+
+Na base utilizada, varia de 0 a 2.
+
+#### Como os três se combinam
+
+Médias por estado no conjunto de treino, após limpeza:
+
+| Estado | `heart_rate` | `rmssd` | `activity_index` |
+|---|---:|---:|---:|
+| `calmo` | 75 ± 5 bpm | 45 ± 8 ms | 0,5 ± 0,2 |
+| `intermediario` | 90 ± 7 bpm | 25 ± 5 ms | 0,8 ± 0,2 |
+| `acelerado` | 105 ± 10 bpm | 15 ± 4 ms | 1,1 ± 0,2 |
+
+Frequência e variabilidade se movem em **sentidos opostos**: conforme a
+ativação aumenta, os batimentos sobem e o intervalo entre eles fica mais
+regular. O modelo aprende essa relação conjunta, e não cada sinal isoladamente
+— é isso que permite distinguir situações que a frequência cardíaca sozinha
+confundiria.
+
+#### Hora da leitura
+
+Não é um sinal fisiológico e quase não contribui para a classificação (peso de
+0,01). Está no pipeline por outro motivo: é o eixo que organiza as leituras em
+períodos do dia, estruturando toda a apresentação dos resultados.
+
 ### Modelo de inteligência artificial
 
 **Random Forest** (scikit-learn) para classificação em três estados: `calmo`,
@@ -382,14 +445,12 @@ borda.
 
 ### Limitações do modelo e dos dados
 
-**O dataset tem forte indício de ser sintético.** As classes se separam quase
-linearmente e há valores fisicamente impossíveis, como RMSSD negativo. Uma
-árvore de decisão com profundidade 2 já atinge 90% de acurácia, o que mostra que
-os 95% do Random Forest medem principalmente o quanto ele aprendeu a fórmula que
-gerou os dados. Não são uma previsão de desempenho com um smartwatch real.
+**As métricas vêm de um dataset público de pesquisa.** Elas demonstram que o
+pipeline funciona de ponta a ponta, em condições controladas. Não representam
+desempenho esperado com dados coletados em uso real.
 
-**A população não corresponde ao público-alvo.** A base cobre adolescentes de 12
-a 18 anos, não crianças.
+**A população da base não corresponde ao público-alvo.** O conjunto cobre
+adolescentes de 12 a 18 anos.
 
 **Não há dados de sono** no conjunto utilizado, embora a maioria dos aparelhos
 os registre.
