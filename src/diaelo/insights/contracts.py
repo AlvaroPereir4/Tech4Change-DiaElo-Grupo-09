@@ -41,7 +41,7 @@ class Reading(BaseModel):
     def is_plausible(self) -> bool:
         """Leitura fisiologicamente possivel.
 
-        Relogio de pulso perde contato, treme e inventa numero. Leitura
+        Sensor de pulso perde contato e registra valores espurios. Leitura
         implausivel e descartada e contabilizada, nunca corrigida em silencio.
         """
         checks = {

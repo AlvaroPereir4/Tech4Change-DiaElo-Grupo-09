@@ -39,7 +39,7 @@ somando seno e cosseno. A hora fica no pipeline porque e o eixo da camada de
 traducao (agregar insights por periodo do dia), nao porque ajuda a classificar.
 
 **3. Sao adolescentes, nao criancas.** Faixa etaria 12-18 anos. O produto fala
-de criancas autistas; o modelo nunca viu essa populacao.
+de criancas com TEA; o modelo nunca viu essa populacao.
 
 **4. O rotulo e "estresse fisiologico", nao crise nem emocao.** Ativacao
 autonomica sobe com exercicio, susto, animacao e febre. Por isso a saida do

@@ -1,68 +1,255 @@
+<div align="center">
+
 # DiaElo
 
-**Dados que viram cuidado, não diagnóstico.**
+### Dados que viram cuidado, não diagnóstico.
 
-Plataforma que lê dados de smartwatches acessíveis — frequência cardíaca,
-variabilidade e movimento — e os transforma em observações compreensíveis
-sobre a rotina de crianças autistas.
+Plataforma que lê dados de smartwatches acessíveis e os transforma<br>
+em observações compreensíveis sobre a rotina de crianças com TEA.
 
-Não detecta crises, não diagnostica emoções e não substitui profissionais.
-Mostra padrões para que a família converse e decida melhor.
+<br>
+
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white)
+![Oracle Cloud](https://img.shields.io/badge/Oracle_Cloud-F80000?style=for-the-badge&logo=oracle&logoColor=white)
+
+<br>
+
+`Tech4Change 2026` · `Grupo 09`
+
+</div>
 
 ---
 
-## O problema
+> **Não detecta crises, não diagnostica emoções e não substitui profissionais.**
+> Mostra padrões para que a família converse e decida melhor.
 
-Responsáveis de crianças autistas convivem com sinais e mudanças ao longo do
+---
+
+## Sumário
+
+- [O hackathon](#o-hackathon)
+- [A solução](#a-solução)
+- [Arquitetura](#arquitetura)
+- [Tecnologias](#tecnologias)
+- [APIs, modelos de IA e bases de dados](#apis-modelos-de-ia-e-bases-de-dados)
+- [Instalação e execução](#instalação-e-execução)
+- [Contrato de dados](#contrato-de-dados)
+- [Equipe](#equipe)
+- [Limitações conhecidas e próximos passos](#limitações-conhecidas-e-próximos-passos)
+
+---
+
+## O hackathon
+
+Este repositório contém a solução desenvolvida pelo **Grupo 09** para o
+**TECH4CHANGE 2026**, hackathon cujo tema é _Potencializando o ser humano com
+Inteligência Artificial_.
+
+O DiaElo foi concebido e desenvolvido por um time de **três pessoas** ao longo
+dos **20 dias** da primeira fase da competição.
+
+O que está neste repositório é um **produto mínimo viável**: demonstra que a
+proposta funciona de ponta a ponta, do sensor à frase que a família lê, mas não
+constitui um produto acabado. O recorte foi escolhido para sustentar a
+demonstração com aquilo que pode ser afirmado de forma honesta, com as
+limitações registradas em [seção própria](#limitações-conhecidas-e-próximos-passos).
+
+---
+
+## A solução
+
+### O problema
+
+Responsáveis de crianças com TEA convivem com sinais e mudanças ao longo do
 dia, mas não têm uma forma simples de transformar isso em algo compreensível.
 Os dados ficam isolados no relógio, sem contexto.
 
-Os aplicativos existentes ou são focados em exercício físico, ou disparam
-alertas de possível crise — o que gera ansiedade em tempo real em vez de
-entendimento. O DiaElo ocupa o espaço entre os dois: nenhum alerta,
-nenhuma emergência, só o dia descrito em linguagem que a família entende.
+Os aplicativos existentes ficam em dois extremos:
 
-## API
+| Abordagem | Problema |
+|---|---|
+| Apps de exercício | Tratam o corpo como performance, não como rotina |
+| Apps de alerta de crise | Produzem ansiedade em tempo real, não entendimento |
 
-Recebe as leituras de um dia inteiro e devolve o dia organizado em quatro
-períodos, cada um descrito em números que o relógio de fato mediu.
+O DiaElo ocupa o espaço entre os dois: descreve o dia em linguagem que a
+família entende, sem urgência e sem alarme.
 
-**O princípio que governa a resposta:** só se afirma o que foi medido.
+### A proposta
 
-Um modelo de machine learning classifica cada leitura, mas ele não aparece no
-texto. As frases citam batimento, contagem de leituras e comparação com a
-média do próprio dia da criança. Se o modelo errar, os textos continuam
-verdadeiros — o pior caso é um insight menos interessante, nunca uma
-afirmação falsa para uma família.
+A plataforma recebe as leituras de um dia inteiro e devolve o dia organizado em
+quatro períodos, cada um descrito com os números que o relógio de fato mediu.
 
-### Como funciona
+A regra que orienta toda a resposta é que **só se afirma o que foi medido**. Um
+Random Forest classifica cada leitura, mas a classificação não aparece no
+texto: as frases citam batimento, contagem de leituras e comparação com a média
+do próprio dia da criança. Um erro do modelo pode, no máximo, destacar um
+período menos relevante. Ele não produz uma frase falsa.
 
-```
-relógio ──(1 leitura a cada ~10 min)──> app acumula ──(1 request/dia)──> API
-                                                                         │
-                          descarta leitura fisiologicamente impossível ◄──┘
-                          classifica cada leitura (Random Forest)
-                          agrupa por período do dia
-                          descreve cada período em números medidos
-                                    │
-   telas  ◄─────────────────────────┘
-```
-
-A **linha de base é o próprio dia da criança**: cada período é comparado com a
-média das outras leituras dela mesma. Isso dispensa histórico e funciona desde
-o primeiro dia de uso.
-
-### Endpoints
-
-| Método | Rota | O que faz |
-|---|---|---|
-| `GET` | `/health` | Estado do serviço e do modelo carregado |
-| `POST` | `/insights` | Recebe as leituras da janela, devolve as observações |
-| `GET` | `/docs` | Documentação interativa (Swagger), gerada automaticamente |
+A referência de comparação é o **próprio dia da criança**: cada período é
+medido contra a média das outras leituras dela mesma. Isso dispensa histórico e
+funciona desde o primeiro dia de uso.
 
 ---
 
-## Rodando local
+## Arquitetura
+
+### Visão geral
+
+O sistema é dividido em três camadas, com dependência em uma única direção. A
+camada de interface não conhece o modelo, e a camada de domínio não conhece
+HTTP.
+
+```mermaid
+flowchart TB
+    subgraph L3["Interface"]
+        API["FastAPI<br/><sub>api/main.py</sub>"]
+    end
+
+    subgraph L2["Domínio"]
+        ENG["Motor de insights<br/><sub>insights/engine.py</sub>"]
+        NAR["Tradução humanizada<br/><sub>insights/narrative.py</sub>"]
+        PRED["Inferência<br/><sub>insights/predictor.py</sub>"]
+        CON["Contratos Pydantic<br/><sub>insights/contracts.py</sub>"]
+    end
+
+    subgraph L1["Dados e modelo"]
+        LOAD["Carga e limpeza<br/><sub>data/loader.py</sub>"]
+        FEAT["Features<br/><sub>data/features.py</sub>"]
+        TRAIN["Treino<br/><sub>training/train.py</sub>"]
+        PKL[("Artefato .pkl")]
+    end
+
+    API --> ENG
+    API -.usa.-> CON
+    ENG --> NAR
+    ENG --> PRED
+    ENG -.usa.-> CON
+    PRED --> PKL
+    PRED -.usa.-> FEAT
+    LOAD --> TRAIN
+    FEAT --> TRAIN
+    TRAIN --> PKL
+```
+
+O treino é um processo **offline**, executado sob demanda. Ele consome o dataset
+e produz o artefato `.pkl`. A API nunca treina: apenas carrega o artefato na
+inicialização.
+
+### Fluxo de execução
+
+```mermaid
+flowchart LR
+    W["Relógio<br/><sub>1 leitura / ~10 min</sub>"] --> A["App<br/><sub>acumula o dia</sub>"]
+    A -->|"1 request/dia"| API["API"]
+
+    subgraph P["Processamento"]
+        direction TB
+        S1["Descarta leitura<br/>impossível"] --> S2["Classifica cada leitura<br/><sub>Random Forest</sub>"]
+        S2 --> S3["Agrupa por período<br/>do dia"]
+        S3 --> S4["Descreve em<br/>números medidos"]
+    end
+
+    API --> P
+    P --> T["Telas"]
+```
+
+### Decisões de arquitetura
+
+| Decisão | Motivo |
+|---|---|
+| **Serviço sem estado** | Cada requisição é independente. Não há banco de dados nem sessão: entram as leituras, saem as observações. Simplifica o deploy e evita armazenar dado sensível de criança. |
+| **Contratos Pydantic compartilhados** | Os mesmos modelos definem o domínio e o schema HTTP. O OpenAPI é gerado da fonte da verdade, sem cópia que possa divergir. |
+| **Modelo como artefato versionado** | O `.pkl` guarda o estimador, a ordem das features e as métricas do treino. A inferência valida o que recebe em vez de falhar em silêncio. |
+| **Separação entre classificar e narrar** | O modelo decide o que merece atenção; o texto cita apenas sensor medido. Erro de modelo degrada a relevância, nunca a veracidade. |
+| **Carga do modelo na inicialização** | Se o artefato estiver ausente, o serviço não sobe. É preferível falhar no deploy a falhar na primeira requisição real. |
+
+### Infraestrutura
+
+A aplicação é empacotada como um processo único (uvicorn servindo FastAPI) e
+executada em uma instância **Oracle Cloud Infrastructure Compute** com Ubuntu.
+Por não haver banco de dados nem estado compartilhado, a instância pode ser
+reiniciada ou substituída sem perda de informação.
+
+---
+
+## Tecnologias
+
+| Camada | Tecnologia |
+|---|---|
+| **Linguagem** | Python 3.11+ |
+| **Modelo** | scikit-learn (Random Forest) |
+| **Processamento de dados** | pandas · NumPy |
+| **Serialização do modelo** | joblib |
+| **API** | FastAPI · Pydantic v2 |
+| **Servidor** | uvicorn |
+| **Infraestrutura** | Oracle Cloud Infrastructure (Compute) |
+| **Controle de versão** | Git · GitHub |
+
+---
+
+## APIs, modelos de IA e bases de dados
+
+### API desenvolvida
+
+API REST própria, documentada automaticamente via OpenAPI.
+
+| Método | Rota | Descrição |
+|:---:|---|---|
+| `GET` | `/health` | Estado do serviço e metadados do modelo carregado |
+| `POST` | `/insights` | Recebe as leituras da janela, devolve as observações |
+| `GET` | `/docs` | Documentação interativa (Swagger), gerada automaticamente |
+
+Nenhuma API externa de terceiros é consumida, e o projeto não depende de
+serviços pagos de inteligência artificial.
+
+### Modelo de inteligência artificial
+
+**Random Forest** (scikit-learn) para classificação em três estados: `calmo`,
+`intermediario` e `acelerado`. Utiliza apenas variáveis que um smartwatch de
+baixo custo entrega.
+
+| Feature | Importância | |
+|---|---:|---|
+| `RMSSD` — variabilidade da frequência cardíaca | **0,50** | ████████████ |
+| `Heart_Rate` — frequência cardíaca | 0,33 | ████████ |
+| `Activity_Index` — proxy de movimento | 0,16 | ████ |
+| Hora do dia (codificada de forma cíclica) | 0,01 | ▏ |
+
+O RMSSD sozinho pesa mais que os outros três somados. Aplicativos de exercício
+costumam olhar a frequência média, mas o marcador de ativação autonômica é a
+variabilidade entre batimentos.
+
+O split de treino e teste é feito **por indivíduo** (`Subject_ID`), não por
+linha. Um split aleatório colocaria o mesmo sujeito nos dois lados, e a métrica
+mediria memorização em vez de generalização.
+
+| Métrica | Valor |
+|---|---:|
+| F1-macro (teste) | **0,947** |
+| Validação cruzada 5-fold por sujeito | 0,950 ± 0,003 |
+| Baseline (classe majoritária) | 0,485 |
+
+### Bases de dados
+
+**Dataset de treino:**
+[ASD-PhysioStress](https://www.kaggle.com/datasets/ziya07/adolescent-stress-physiology-dataset)
+(Kaggle) — 25.000 leituras de 120 indivíduos, com parâmetros fisiológicos
+rotulados em três níveis de ativação.
+
+O arquivo não é versionado neste repositório. As instruções de download e o
+schema completo estão em [data/README.md](data/README.md).
+
+**Banco de dados da aplicação:** não há. O serviço é sem estado e nada é
+persistido entre requisições.
+
+---
+
+## Instalação e execução
+
+### 1. Dependências
 
 ```bash
 python -m venv .venv
@@ -70,52 +257,72 @@ python -m venv .venv
 .venv/Scripts/pip install -e .
 ```
 
-O modelo treinado (`models/diaelo_rf.pkl`, 4,7 MB) já vem no repositório,
-então a API sobe direto:
+### 2. Subir a API
+
+O modelo treinado (`models/diaelo_rf.pkl`, 4,7 MB) já vem no repositório, então
+não é necessário treinar nada:
 
 ```bash
 python -m uvicorn diaelo.api.main:app --reload --port 8080
 ```
 
-Documentação interativa em `http://127.0.0.1:8080/docs`.
+A documentação interativa fica em **http://127.0.0.1:8080/docs**.
 
-Para retreinar, baixe o dataset (ver [data/README.md](data/README.md)) e rode:
-
-```bash
-python -m diaelo.training.train
-```
-
-### Testando
+### 3. Testar
 
 ```bash
 curl http://127.0.0.1:8080/health
 ```
 
 ```bash
-curl -X POST http://127.0.0.1:8080/insights -H "Content-Type: application/json" -d @examples/request-exemplo.json
+curl -X POST http://127.0.0.1:8080/insights \
+     -H "Content-Type: application/json" \
+     -d @examples/request-exemplo.json
 ```
 
-> No PowerShell use `curl.exe` — `curl` é apelido do `Invoke-WebRequest` e tem
-> sintaxe diferente.
+> [!TIP]
+> No PowerShell, use `curl.exe`. O `curl` sem extensão é apelido do
+> `Invoke-WebRequest`, que tem sintaxe diferente.
+
+<details>
+<summary><b>Retreinar o modelo</b></summary>
+
+<br>
+
+Baixe o dataset conforme as instruções em [data/README.md](data/README.md),
+coloque o CSV em `data/raw/` e rode:
+
+```bash
+python -m diaelo.training.train
+```
+
+O script imprime as métricas, salva o artefato em `models/diaelo_rf.pkl` e o
+relatório em `reports/metrics.json`.
+
+</details>
 
 ---
 
-## Resumo do contrato
+## Contrato de dados
 
-**Entra** um lote com todas as leituras do dia (~144 objetos num dia real,
-~17 KB). Quatro campos por leitura:
+### Entrada
+
+Um lote com **todas as leituras do dia** — cerca de 144 objetos e 17 KB num dia
+real. Quatro campos por leitura:
 
 ```json
 { "timestamp": "2026-09-17T14:00:00-03:00", "heart_rate": 105.7, "rmssd": 15.2, "activity_index": 1.21 }
 ```
 
-O período do dia é derivado do `timestamp` no backend — o app não envia
-período. Leitura fisiologicamente impossível não é erro: entra como descarte
-contabilizado.
+O período do dia é derivado do `timestamp` no backend, então o app não precisa
+enviá-lo. Leitura fisiologicamente impossível não invalida a requisição: ela é
+descartada e o total de descartes volta na resposta.
 
-**Sai** o dia em quatro períodos. Cada um traz os números medidos
-(`metrics`), como as leituras se distribuíram entre calmo / intermediário /
-acelerado (`distribution`), e a frase pronta (`observation`):
+### Saída
+
+O dia em quatro períodos. Cada um traz os números medidos (`metrics`), como as
+leituras se distribuíram entre os estados (`distribution`), e a frase pronta
+para exibição (`observation`):
 
 ```json
 {
@@ -131,71 +338,83 @@ acelerado (`distribution`), e a frase pronta (`observation`):
 }
 ```
 
-Três coisas que definem como a tela é construída:
+### Três pontos que definem a tela
 
-- `periods` sempre traz os **4 períodos**, em ordem cronológica, mesmo os sem
-  dado. Layout fixo, não lista dinâmica.
-- Quando `conclusive` é `false`, os campos numéricos vêm nulos — mas a
-  `observation` já vem preenchida explicando a falta. A tela não escreve texto
-  de estado vazio.
-- Todo texto que a família lê vem pronto do backend. O front não redige frase
-  sobre o estado da criança.
+1. **`periods` sempre traz os quatro períodos**, em ordem cronológica, mesmo os
+   sem dado. O layout é fixo, não uma lista dinâmica.
+2. **Quando `conclusive` é `false`**, os campos numéricos vêm nulos, mas a
+   `observation` vem preenchida explicando a falta. A tela não precisa escrever
+   texto de estado vazio.
+3. **Todo texto exibido para a família vem pronto do backend.** O front não
+   redige frases sobre o estado da criança.
 
-📄 **Contrato completo, campo a campo, com exemplo integral de entrada e saída:
-[docs/API.md](docs/API.md)**
+> [!IMPORTANT]
+> O contrato completo, campo a campo e com exemplo integral de entrada e saída,
+> está em **[docs/API.md](docs/API.md)**.
 
-Payload de exemplo pronto para usar:
-[examples/request-exemplo.json](examples/request-exemplo.json) — 21 leituras,
-com madrugada vazia e uma leitura impossível de 310 bpm, para exercitar os
-casos de borda.
-
----
-
-## O modelo
-
-Random Forest treinado no [ASD-PhysioStress](https://www.kaggle.com/datasets/ziya07/adolescent-stress-physiology-dataset),
-usando apenas variáveis que um smartwatch de baixo custo entrega:
-
-| Feature | Importância |
-|---|---|
-| `RMSSD` (variabilidade da FC) | 0,50 |
-| `Heart_Rate` | 0,33 |
-| `Activity_Index` | 0,16 |
-| Hora do dia (cíclica) | 0,01 |
-
-O RMSSD sozinho pesa mais que os outros somados. Aplicativos de exercício
-olham BPM; o marcador de ativação autonômica é a variabilidade.
-
-O split de treino/teste é feito **por indivíduo** (`Subject_ID`), não por
-linha: split aleatório colocaria o mesmo sujeito nos dois lados e a métrica
-mediria memorização.
-
-| | |
-|---|---|
-| F1-macro (teste) | 0,947 |
-| CV 5-fold por sujeito | 0,950 ± 0,003 |
-| Baseline (classe majoritária) | 0,485 |
-
-### Leia isto antes de citar as métricas
-
-**O dataset é sintético, ou muito próximo disso.** As classes se separam quase
-linearmente, e há valores fisicamente impossíveis (RMSSD negativo). Uma árvore
-de decisão de profundidade 2 atinge 90% — os 95% do Random Forest medem o
-quanto ele aprendeu a fórmula que gerou os dados, **não** o desempenho
-esperado com um smartwatch real.
-
-O dataset também é de **adolescentes de 12 a 18 anos**, não de crianças, e não
-contém dados de sono.
-
-Isso não invalida o projeto: valida que o pipeline funciona ponta a ponta.
-O que falta validar — se os insights ajudam famílias de verdade — exige dado
-longitudinal real, que nenhuma base pública tem.
-
-Limitações completas em [data/README.md](data/README.md).
+Há um payload pronto para testes em
+[examples/request-exemplo.json](examples/request-exemplo.json): 21 leituras, com
+a madrugada vazia e uma leitura impossível de 310 bpm, cobrindo os casos de
+borda.
 
 ---
 
-## Estrutura
+## Equipe
+
+- Álvaro Pereira — [@AlvaroPereir4](https://github.com/AlvaroPereir4)
+- Nurian Coelho — [@Nuri-an](https://github.com/Nuri-an)
+- Kayo Leanndro — [@KayoLeanndro](https://github.com/KayoLeanndro)
+
+---
+
+## Limitações conhecidas e próximos passos
+
+### Limitações do modelo e dos dados
+
+**O dataset tem forte indício de ser sintético.** As classes se separam quase
+linearmente e há valores fisicamente impossíveis, como RMSSD negativo. Uma
+árvore de decisão com profundidade 2 já atinge 90% de acurácia, o que mostra que
+os 95% do Random Forest medem principalmente o quanto ele aprendeu a fórmula que
+gerou os dados. Não são uma previsão de desempenho com um smartwatch real.
+
+**A população não corresponde ao público-alvo.** A base cobre adolescentes de 12
+a 18 anos, não crianças.
+
+**Não há dados de sono** no conjunto utilizado, embora a maioria dos aparelhos
+os registre.
+
+**Alguns limiares não são calibrados.** Os critérios que decidem quando
+mencionar variação de movimento, e quando avisar sobre excesso de leituras
+descartadas, foram definidos por estimativa. Calibrá-los exige dado real de uso.
+
+### Limitações da aplicação
+
+**Sem persistência.** Cada requisição é independente. Não há histórico, e
+portanto não há comparação entre dias ou semanas.
+
+**Sem autenticação.** A API não possui controle de acesso, e o CORS está aberto
+a qualquer origem. Adequado para demonstração, inadequado para uso real com
+dados de crianças.
+
+**A coleta é responsabilidade do cliente.** Não há integração direta com nenhum
+smartwatch; o aplicativo acumula as leituras e envia o lote.
+
+### Próximos passos
+
+| Funcionalidade | O que viabilizaria |
+|---|---|
+| Histórico por criança | Comparação entre dias e semanas, e não apenas entre períodos de um mesmo dia |
+| Linha de base pessoal acumulada | Referência construída ao longo do tempo, em vez de restrita ao dia corrente |
+| Autenticação e restrição de CORS | Pré-requisito para qualquer uso além da demonstração |
+| Integração direta com o relógio | Eliminar a dependência de o aplicativo intermediar a coleta |
+| Incorporação de dados de sono | Ampliar a leitura da rotina para além do período em vigília |
+| Geração de texto por LLM | Observações mais naturais, mantendo a ancoragem nos números medidos |
+| Compartilhamento com profissionais | Levar o padrão observado para a consulta |
+| Validação com famílias | Verificar se as observações efetivamente ajudam, que é a pergunta central do projeto |
+
+---
+
+## Estrutura do projeto
 
 ```
 src/diaelo/
@@ -212,8 +431,18 @@ src/diaelo/
 │   └── engine.py        # orquestração
 └── api/
     └── main.py          # FastAPI
+
+docs/API.md              # contrato de dados completo
+data/README.md           # dataset: schema e limitações
+examples/                # payload de exemplo
+models/                  # artefato treinado (.pkl)
+reports/                 # métricas do último treino
 ```
 
 ---
 
-Tech4Change · DiaElo · Grupo 09
+<div align="center">
+
+**Tech4Change 2026** · DiaElo · Grupo 09
+
+</div>
