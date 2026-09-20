@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+
+  --color-background: #FAF9F6;
+  --color-foreground: #1C1A17;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1C1A17;
+  --color-primary: #4E5FA3;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F0EDE6;
+  --color-secondary-foreground: #4A4640;
+  --color-muted: #EDE9E0;
+  --color-muted-foreground: #7A7269;
+  --color-accent: #E8A598;
+  --color-accent-foreground: #6B2D25;
+  --color-border: #E3DDD3;
+  --color-ring: #4E5FA3;
+
+  --color-calmo: #7AAE8E;
+  --color-calmo-bg: #EDF6F1;
+  --color-calmo-text: #2D6A4A;
+  --color-intermediario: #D4A853;
+  --color-intermediario-bg: #FDF6E7;
+  --color-intermediario-text: #7A5A10;
+  --color-acelerado: #D4756A;
+  --color-acelerado-bg: #FDF0EE;
+  --color-acelerado-text: #7A2E25;
+  --color-insuficiente: #C5BFB5;
+  --color-insuficiente-bg: #F2F0EC;
+  --color-insuficiente-text: #7A7269;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #E8E4DC;
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }

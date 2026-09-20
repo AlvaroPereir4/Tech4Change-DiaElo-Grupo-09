@@ -16,3 +16,48 @@ __pycache__/
 # IDE
 .idea/
 .vscode/
+
+# Mobile
+
+## dependencies
+mobile/node_modules/
+
+## Expo
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+mobile/expo-env.d.ts
+
+## Native
+mobile/.kotlin/
+mobile/*.orig.*
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+
+## Metro
+mobile/.metro-health-check*
+
+## debug
+mobile/npm-debug.*
+mobile/yarn-debug.*
+mobile/yarn-error.*
+
+## macOS
+.DS_Store
+mobile/.DS_Store
+mobile/*.pem
+
+## local env files
+mobile/.env*.local
+
+## typescript
+mobile/*.tsbuildinfo
+
+mobile/example
+
+## generated native folders
+mobile/ios
+mobile/android
